@@ -7,22 +7,22 @@ Template to kickstart hosting Strapi on AWS Lambda, connect to AWS S3 and AWS RD
 - [Serverless Strapi](#serverless-strapi)
 - [Table of content](#table-of-content)
 - [Why?](#why)
+- [Prerequisites](#prerequisites)
 - [Get Started](#get-started)
-  - [Prerequisites](#prerequisites)
-  - [Actually Get Started](#actually-get-started)
-    - [Setup Infrastructure With Terraform](#setup-infrastructure-with-terraform)
-      - [Initialize](#initialize)
-      - [Configuration](#configuration)
-      - [Build](#build)
-      - [Obtain Bucket User Access Key](#obtain-bucket-user-access-key)
-      - [Obtain Strapi Server Url using Serverless Framework](#obtain-strapi-server-url-using-serverless-framework)
-    - [Test Strapi App](#test-strapi-app)
-      - [Configuration](#configuration-1)
-      - [Test Run](#test-run)
-    - [Deploy Strapi App With Serverless Framework](#deploy-strapi-app-with-serverless-framework)
+  - [Setup Infrastructure With Terraform](#setup-infrastructure-with-terraform)
+    - [Initialize](#initialize)
+    - [Configuration](#configuration)
+    - [Build](#build)
+    - [Obtain Bucket User Access Key](#obtain-bucket-user-access-key)
+    - [Obtain Strapi Server Url using Serverless Framework](#obtain-strapi-server-url-using-serverless-framework)
+  - [Test Strapi App](#test-strapi-app)
+    - [Configuration](#configuration-1)
+    - [Test Run](#test-run)
+  - [Deploy Strapi App With Serverless Framework](#deploy-strapi-app-with-serverless-framework)
 - [Caveats](#caveats)
   - [Strapi Will Not Have Open Internet Access](#strapi-will-not-have-open-internet-access)
-  - [Maximum File Size When Upload](#maximum-file-size-when-upload)
+  - [Maximum Upload File Size](#maximum-upload-file-size)
+- [Roadmap](#roadmap)
 
 # Why?
 
@@ -37,13 +37,9 @@ Basically, to have your Strapi runs on demand, AWS services would fetch a Strapi
 
 Of course, if your use case requires end users to communicate directly with Strapi, there are techniques to reduce, or even eleviate cold start time (i.e eCommerce platforms). However, I would recommend running Strapi on AWS ECS if you absolutely prioritize response time.
 
-# Get Started
+# Prerequisites
 
-Enough explaining, you can try this Serverless Strapi by following these instructions. After this tutorial, you will have a Strapi running, attached to all relevant AWS services in your AWS account.
-
-## Prerequisites
-
-Before getting start with this tutorial, here are a few prerequisites. Feel free to skip this part if you have already satisfied all of these:
+Enough explaining, you can try this Serverless Strapi by following these instructions. After this tutorial, you will have a Strapi running, attached to all relevant AWS services in your AWS account. Before getting started with this tutorial, here are a few prerequisites. Feel free to skip this part if you have already satisfied all of these:
 
 - **Git**: You can install Git by following Github's [official documentation](https://github.com/git-guides/install-git)
 - **AWS account**: head to [https://aws.amazon.com](https://aws.amazon.com) to create your AWS account and login to the dashboard
@@ -98,7 +94,7 @@ serverless -v
 
 - **Docker**: Serverless Framework uses Docker to build Strapi image locally and upload it to AWS ECR, then instruct Lambda to fetch from that image everytime it cold starts. Following Docker's [official documentation](https://docs.docker.com/get-docker/) to install Docker on your machine.
 
-## Actually Get Started
+# Get Started
 
 Start by cloning this repository:
 
@@ -106,9 +102,9 @@ Start by cloning this repository:
 git clone https://github.com/WilsonLe/serverless-strapi
 ```
 
-### Setup Infrastructure With Terraform
+## Setup Infrastructure With Terraform
 
-#### Initialize
+### Initialize
 
 Let's first begin with setting up the infrastructure for Strapi.
 
@@ -116,7 +112,7 @@ Let's first begin with setting up the infrastructure for Strapi.
 yarn tf init
 ```
 
-#### Configuration
+### Configuration
 
 Open up the `example.secrets.auto.tfvars` file in the `terraform` directory and update the configuration based on the following table. I recommend using a random password generator without special character/symbols to generate passwords, secrets, keys, tokens, and salt (personally I use [lastpast password generator](https://www.lastpass.com/features/password-generator#generatorTool)).
 
@@ -130,7 +126,7 @@ Open up the `example.secrets.auto.tfvars` file in the `terraform` directory and 
 
 After you have modified all the value in the file, rename the file from `example.secrets.auto.tfvars` to `secrets.auto.tfvars` (basically remove the leading `example.`). Terraform will automatically parse this secret file when creating infrastructure.
 
-#### Build
+### Build
 
 Use the following command to double check if terraform is creating the accurate infrastructure. Note that our terminal current working directory is still in `terraform` directory. The output should be about terraform is planning to add some infrastructures, nothing to change, and nothing to destroy.
 
@@ -144,7 +140,7 @@ Use the following command to build out our serverless infrastructure.
 yarn tf apply
 ```
 
-#### Obtain Bucket User Access Key
+### Obtain Bucket User Access Key
 
 Terraform script will create a user to interact with AWS S3 storage bucket. We will need to obtain access keys to the users to be able to interact with AWS S3 storage bucket.
 
@@ -169,13 +165,13 @@ aws iam delete-access-key --user-name <username-output> --access-key-id <access-
 aws iam create-access-key --user-name <username-output>
 ```
 
-#### Obtain Strapi Server Url using Serverless Framework
+### Obtain Strapi Server Url using Serverless Framework
 
-### Test Strapi App
+## Test Strapi App
 
 After all your infrastructure is setup, we begin running our Strapi application locally while connecting to all new cloud infrastructures.
 
-#### Configuration
+### Configuration
 
 Open `.env.example` in the project's root directory and update the environment variable accordingly:
 
@@ -205,7 +201,7 @@ Open `.env.example` in the project's root directory and update the environment v
 
 After you have updated all the environment variables, rename the `.env.example` file to `.env` (basically removing the trailing `.example`).
 
-#### Test Run
+### Test Run
 
 ```bash
 # Run this command to test run Strapi on your machine
@@ -218,7 +214,7 @@ Hopefully, you should get an output like this:
 Following the link, we got this Strapi dialog:
 ![Welcome To Strapi image](docs/static/welcome-to-strapi.png)
 
-### Deploy Strapi App With Serverless Framework
+## Deploy Strapi App With Serverless Framework
 
 There isn't much to setup for Serverless Framework. You can check out the `serverless.yml` configuration files to learn more, but if you have setup `.env` files correctly, and you have sucessfully run Strapi locally on your machine using AWS infrastructure created with Terraform, then you are all set to deploy your Strapi application into AWS Lambda with Serverless Framework.
 
@@ -254,6 +250,11 @@ There are some caveats with this form of deployment.
 
 This applies for all Lambda functions that lives in AWS VPC. Lambda functions will have access to other AWS services, but will not have access to open internet access (atleast, by default). This [blog post](https://nodogmablog.bryanhogan.net/2022/06/accessing-the-internet-from-vpc-connected-lambda-functions-using-a-nat-gateway/) gives a pretty good explanation why and how to allow your Lambda function have access to the internet. The problem with the solution in the blog post is that it significantly increases the **COST** to roughly $25/month for all the network component it introduces to our serverless architecture.
 
-## Maximum File Size When Upload
+## Maximum Upload File Size
 
 The core upload plugin of Strapi with the [upload-aws-s3](https://market.strapi.io/providers/@strapi-provider-upload-aws-s3) provider will turn Strapi into a file proxy to AWS S3. Since Strapi is running inside Lambda and is invoked through an API Gateway, we are limitted by the API Gateway file size limitation, which is 10Mb at the time of writing this. A solution that I'm investigating is to shove the responsibility of uploading files to S3 to the client admin panel. When uploading a file, the admin panel make a request to server, asking for a presigned url. Using that presigned URL, we proceed to upload the file, and make a request to Strapi notifying of the new file upload for Strapi to update database. One issue that I have not been able to solve is that Strapi introduces a series of file processing middlewares, and by not directly passing user uploaded file through Strapi, the file will not be consistent with how Strpai stores file metadata. This caveat does have a solution but requires further investigation and possibly an issue/pull request on Strapi's core upload plugin to enable file upload through external services such that file metadata is still consistent in database.
+
+# Roadmap
+
+- Make this an actual template to kickstart Strapi CMS with serverless architecture. Perhaps using npx scripts?
+- Investigate maximum upload file size caveat.
