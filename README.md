@@ -26,16 +26,24 @@ Template to kickstart hosting Strapi on AWS Lambda, connect to AWS S3 and AWS RD
 
 # Why?
 
+## The "Traditional" Non-Serverless method
+
 You might be thinking, why choose serverless Strapi when you can run Strapi on a dedicated server? The answer is: **COST!**. I tried running Strapi in a AWS ECS, connecting to AWS S3 and AWS RDS. The problem is that Strapi will be constantly running, burning through AWS RDS's free tier connection time, racking up the total bill. The total cost for the non-serverless architecture is roughly $20/month: $10/month for AWS ECS, and $10/month for AWS RDS. That number is way too high for a college student doing side projects for fun! There are several way to cut costs for the non-serverless architecture:
 
 - Self host your own database: by running your database in a self hosted AWS EC2 instance, you can cut your database cost down to $4/month (the lowest plan for AWS EC2 that I know of). The downside is that the database is missing all the essential features like instant rollback, backup, multiple availability zones read duplicates, and not to mention you have to occasionally fix networking, VPC issues. Using AWS RDS can help you forget about database management (hence the cost), and personally, I prefer this trade-off for my use case.
 - Self host your Strapi: obviously you can run Strapi on your own server. Strapi recommend at least 2GB of memory to build and run Strapi. If you are a college student running side project (like me), chances are you don't have a hobby server lying around in your dorm, so the next option would be to rent a server somewhere. Most of the providers I looked around offers 2GB memory servers at around $10-12/month (Digital Ocean droplets, Linode), which is essentially the same cost of AWS ECS, without the reliability of AWS (I'll leave that statement up for debate).
 
+## The Serverless Method
+
 The solution? Running Strapi on serverless architectures, specifically AWS Lambda. This significantly lower the cost of running Strapi because the server runs on demand. In addition, it also lowers AWS RDS cost because there is not active connections to it while Strapi is not running, making AWS RDS essentially free with the AWS free tier. Therefore, the upside of running serverless architecture for my use case is **COST!**, something that I care very much about. Of course, there are downsides of running serverless architecture, most importantly (drum roll...) the cold start time.
 
-Basically, to have your Strapi runs on demand, AWS services would fetch a Strapi container image from AWS ECR, spin up the container image, load the package code into memory, finally begin execution of Strapi. This whole process takes rougly 2-5 seconds without any optimization techinique, which is unacceptably slow for a CMS. The reason it is valid for my use case because I host a static blog website using NextJS, which builds the packages on the server and distribute the rendered static files to all of Vercel's CDN to deliver blogs to users. This mean that user does not make a direct API call to the Strapi, rather the NextJS server that build static files does. This means that only when the server build static files does the system experience the consequence of cold start Strapi. This is not a dire consequence, considering the fact that end users can still experience the quick response time from having static files delivered to their web browsers from a CDN.
+Basically, to have your Strapi runs on demand, AWS services would fetch a Strapi container image from AWS ECR, spin up the container image, load the package code into memory, finally begin execution of Strapi. This whole process takes rougly 2-5 seconds without any optimization techinique, which is unacceptably slow for a CMS. However, the cold start time does not affect my use case. 
 
-Of course, if your use case requires end users to communicate directly with Strapi, there are techniques to reduce, or even eleviate cold start time (i.e eCommerce platforms). However, I would recommend running Strapi on AWS ECS if you absolutely prioritize response time.
+## My Use Case
+
+My use case is that there a static blog website using NextJS to render all static files on the server, then distribute the static files to all of Vercel's CDN to deliver content to users. This means that the user reading my blog will not make a direct API call to Strapi CMS, they simply request static files on Vercel's CDN. Only when NextJS renders does it make direct API call to Strapi CMS to fetch data, which it will experience the code start time of Lambda, therefore a longer build time. This is not a dire consequence, considering the fact that end users can still experience the quick response time from having static files delivered to their web browsers from a CDN.
+
+Of course, if your use case requires end users to communicate directly with Strapi (i.e eCommerce platforms), there are techniques to reduce, or even eleviate cold start time. However, I would recommend running Strapi on AWS ECS if you absolutely prioritize response time.
 
 # Prerequisites
 
