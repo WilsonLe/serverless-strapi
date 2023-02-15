@@ -1,0 +1,39 @@
+{
+	"name": "content-service",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Core content service for client websites",
+	"scripts": {
+		"dev": "strapi develop",
+		"start": "strapi start",
+		"build": "strapi build",
+		"strapi": "strapi",
+		"svl": "serverless",
+		"tf": "cd terraform && terraform"
+	},
+	"devDependencies": {
+		"serverless-offline": "^12.0.4",
+		"serverless-plugin-utils": "^0.2.0"
+	},
+	"dependencies": {
+		"@_sh/strapi-plugin-ckeditor": "^1.1.2",
+		"@strapi/plugin-i18n": "4.6.1",
+		"@strapi/plugin-users-permissions": "4.6.1",
+		"@strapi/provider-upload-aws-s3": "4.6.1",
+		"@strapi/strapi": "4.6.1",
+		"pg": "^8.8.0",
+		"serverless-http": "^3.1.1",
+		"strapi-plugin-populate-deep": "^1.1.2"
+	},
+	"author": {
+		"name": "wilson-le"
+	},
+	"strapi": {
+		"uuid": "c6d3a27e-6874-4e3e-a265-126ac5d55ea5"
+	},
+	"engines": {
+		"node": ">=14.19.1 <=18.x.x",
+		"npm": ">=6.0.0"
+	},
+	"license": "MIT"
+}

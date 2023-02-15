@@ -1,0 +1,80 @@
+# serverless.yml
+
+service: serverless-strapi-content-service
+
+frameworkVersion: "3"
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ${env:LAMBDA_REGION}
+  profile: default
+  logRetentionInDays: 1
+  versionFunctions: false
+
+  httpApi:
+    cors: true
+
+  vpc:
+    securityGroupIds: "${split(${env:VPC_SECURITY_GROUP_IDS}, ',')}"
+    subnetIds: "${split(${env:VPC_SUBNET_IDS}, ',')}"
+
+  apiGateway:
+    binaryMediaTypes: "${split(${env:API_GATEWAY_BINARY_MEDIA_TYPES}, ',')}"
+
+  iam:
+    role:
+      statements:
+        # Allow functions to list all buckets
+        - Effect: Allow
+          Action: "s3:ListBucket"
+          Resource: "*"
+        # Allow functions to read/write objects in a bucket
+        - Effect: Allow
+          Action:
+            - "s3:PutObject"
+            - "s3:GetObject"
+            - "s3:ListBucket"
+            - "s3:DeleteObject"
+            - "s3:PutObjectAcl"
+          Resource:
+            - "arn:aws:s3:::serverless-strapi-bucket"
+
+  memorySize: 2048
+
+  ecr:
+    images:
+      strapi:
+        path: ./
+
+  environment:
+    SERVER_URL: !GetAtt HttpApi.ApiEndpoint
+
+package:
+  excludeDevDependencies: true
+  patterns:
+    - "build/**"
+    - "config/**"
+    - "database/**"
+    - "node_modules/**"
+    - "public/**"
+    - "src/**"
+    - ".env"
+    - "package.json"
+    - "!node_modules/esbuild-linux-64/**"
+    - "!node_modules/@babel/**"
+    - "!node_modules/@types/**"
+    - "!node_modules/webpack/**"
+    - "!node_modules/@sentry/**"
+
+functions:
+  strapi:
+    image:
+      name: strapi
+    events:
+      - httpApi: "*"
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-utils
