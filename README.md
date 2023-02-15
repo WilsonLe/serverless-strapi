@@ -103,7 +103,7 @@ serverless -v
 Start by cloning this repository:
 
 ```bash
-git clone
+git clone https://github.com/WilsonLe/serverless-strapi
 ```
 
 ### Setup Infrastructure With Terraform
