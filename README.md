@@ -37,7 +37,7 @@ You might be thinking, why choose serverless Strapi when you can run Strapi on a
 
 The solution? Running Strapi on serverless architectures, specifically AWS Lambda. This significantly lower the cost of running Strapi because the server runs on demand. In addition, it also lowers AWS RDS cost because there is not active connections to it while Strapi is not running, making AWS RDS essentially free with the AWS free tier. Therefore, the upside of running serverless architecture for my use case is **COST!**, something that I care very much about. Of course, there are downsides of running serverless architecture, most importantly (drum roll...) the cold start time.
 
-Basically, to have your Strapi runs on demand, AWS services would fetch a Strapi container image from AWS ECR, spin up the container image, load the package code into memory, finally begin execution of Strapi. This whole process takes rougly 2-5 seconds without any optimization techinique, which is unacceptably slow for a CMS. However, the cold start time does not affect my use case. 
+Basically, to have your Strapi runs on demand, AWS services would fetch a Strapi container image from AWS ECR, spin up the container image, load the package code into memory, finally begin execution of Strapi. This whole process takes rougly 2-5 seconds without any optimization techinique, which is unacceptably slow for a CMS. However, the cold start time does not affect my use case.
 
 ## My Use Case
 
@@ -266,3 +266,7 @@ The core upload plugin of Strapi with the [upload-aws-s3](https://market.strapi.
 
 - Make this an actual template to kickstart Strapi CMS with serverless architecture. Perhaps using npx scripts?
 - Investigate maximum upload file size caveat.
+
+# Projects Using This Template
+
+- (www.giangnguyen.me)[https://www.giangnguyen.me]
