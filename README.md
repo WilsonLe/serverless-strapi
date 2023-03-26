@@ -7,6 +7,9 @@ Template to kickstart hosting Strapi on AWS Lambda, connect to AWS S3 and AWS RD
 - [Serverless Strapi](#serverless-strapi)
 - [Table of content](#table-of-content)
 - [Why?](#why)
+  - [The "Traditional" Non-Serverless method](#the-traditional-non-serverless-method)
+  - [The Serverless Method](#the-serverless-method)
+  - [My Use Case](#my-use-case)
 - [Prerequisites](#prerequisites)
 - [Get Started](#get-started)
   - [Setup Infrastructure With Terraform](#setup-infrastructure-with-terraform)
@@ -22,7 +25,9 @@ Template to kickstart hosting Strapi on AWS Lambda, connect to AWS S3 and AWS RD
 - [Caveats](#caveats)
   - [Strapi Will Not Have Open Internet Access](#strapi-will-not-have-open-internet-access)
   - [Maximum Upload File Size](#maximum-upload-file-size)
+  - [Webhooks Not Guaranteed To Run](#webhooks-not-guaranteed-to-run)
 - [Roadmap](#roadmap)
+- [Projects Using This Template](#projects-using-this-template)
 
 # Why?
 
@@ -262,10 +267,15 @@ This applies for all Lambda functions that lives in AWS VPC. Lambda functions wi
 
 The core upload plugin of Strapi with the [upload-aws-s3](https://market.strapi.io/providers/@strapi-provider-upload-aws-s3) provider will turn Strapi into a file proxy to AWS S3. Since Strapi is running inside Lambda and is invoked through an API Gateway, we are limitted by the API Gateway file size limitation, which is 10Mb at the time of writing this. A solution that I'm investigating is to shove the responsibility of uploading files to S3 to the client admin panel. When uploading a file, the admin panel make a request to server, asking for a presigned url. Using that presigned URL, we proceed to upload the file, and make a request to Strapi notifying of the new file upload for Strapi to update database. One issue that I have not been able to solve is that Strapi introduces a series of file processing middlewares, and by not directly passing user uploaded file through Strapi, the file will not be consistent with how Strpai stores file metadata. This caveat does have a solution but requires further investigation and possibly an issue/pull request on Strapi's core upload plugin to enable file upload through external services such that file metadata is still consistent in database.
 
+## Webhooks Not Guaranteed To Run
+
+Referring to my comment on this discussion on [Strapi forum](https://feedback.strapi.io/developer-experience/p/retry-webhook-requests-if-error-happens), the current implementation of the work queue use to handle webhooks does not work well with our serverless templates. "Right now, making Strapi serverless have a downside that webhooks are not guaranteed to run because the worker queue is an in-memory queue, so if the serverless Strapi finishes whatever task it sets out to do, it clears the memory and that job (i.e webhooks) will not be guaranteed to run." Solving this caveat is my priority right now regarding this project, because webhook is an important aspect of Strapi, and if they are not guaranteed to run means it's basically useless.
+
 # Roadmap
 
 - Make this an actual template to kickstart Strapi CMS with serverless architecture. Perhaps using npx scripts?
 - Investigate maximum upload file size caveat.
+- Implement work queue using database.
 
 # Projects Using This Template
 
