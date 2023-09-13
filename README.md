@@ -276,7 +276,3 @@ Referring to my comment on this discussion on [Strapi forum](https://feedback.st
 - Make this an actual template to kickstart Strapi CMS with serverless architecture. Perhaps using npx scripts?
 - Investigate maximum upload file size caveat.
 - Implement work queue using database.
-
-# Projects Using This Template
-
-- (www.giangnguyen.me)[https://www.giangnguyen.me]
